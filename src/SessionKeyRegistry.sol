@@ -17,14 +17,31 @@ contract SessionKeyRegistry {
         }
     }
 
+    /**
+     * @notice Caller revokes from the signer the specified permissions
+     * @param signer the authorized account
+     * @param permissions the scope of authority to revoke from the signer
+     */
     function revoke(address signer, bytes32[] calldata permissions) external {
         _setAuthorizations(signer, 0, permissions);
     }
 
+    /**
+     * @notice Caller authorizes the signer with permissions until expiry
+     * @param signer the account authorized
+     * @param expiry when the authorization ends
+     * @param permissions the scope of authority granted to the signer
+     */
     function login(address signer, uint256 expiry, bytes32[] calldata permissions) external {
         _setAuthorizations(signer, expiry, permissions);
     }
 
+    /**
+     * @notice Caller funds and authorizes the signer with permissions until expiry
+     * @param signer the account authorized
+     * @param expiry when the authorization ends
+     * @param permissions the scope of authority granted to the signer
+     */
     function loginAndFund(address payable signer, uint256 expiry, bytes32[] calldata permissions) external payable {
         _setAuthorizations(signer, expiry, permissions);
         signer.transfer(msg.value);
