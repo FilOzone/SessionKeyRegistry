@@ -1,5 +1,18 @@
 # SessionKeyRegistry
 
+## Usage
+Builds with [forge](https://getfoundry.sh/introduction/installation/).
+
+### Build
+```sh
+forge build
+```
+
+### Test
+```
+forge test -vvv
+```
+
 ## FAQ
 
 ### What are session keys?
