@@ -5,7 +5,9 @@ contract SessionKeyRegistry {
     mapping(address user => mapping(address signer => mapping(bytes32 permission => uint256))) public
         authorizationExpiry;
 
-    event AuthorizationsUpdated(address indexed identity, address indexed signer, bytes32[] permissions, string origin);
+    event AuthorizationsUpdated(
+        address indexed identity, address signer, uint256 expiry, bytes32[] permissions, string origin
+    );
 
     function _setAuthorizations(address signer, uint256 expiry, bytes32[] calldata permissions) internal {
         mapping(bytes32 => uint256) storage permissionExpiry = authorizationExpiry[msg.sender][signer];
@@ -22,7 +24,7 @@ contract SessionKeyRegistry {
      */
     function revoke(address signer, bytes32[] calldata permissions, string calldata origin) external {
         _setAuthorizations(signer, 0, permissions);
-        emit AuthorizationsUpdated(msg.sender, signer, permissions, origin);
+        emit AuthorizationsUpdated(msg.sender, signer, 0, permissions, origin);
     }
 
     /**
@@ -34,7 +36,7 @@ contract SessionKeyRegistry {
      */
     function login(address signer, uint256 expiry, bytes32[] calldata permissions, string calldata origin) external {
         _setAuthorizations(signer, expiry, permissions);
-        emit AuthorizationsUpdated(msg.sender, signer, permissions, origin);
+        emit AuthorizationsUpdated(msg.sender, signer, expiry, permissions, origin);
     }
 
     /**
@@ -51,7 +53,7 @@ contract SessionKeyRegistry {
         string calldata origin
     ) external payable {
         _setAuthorizations(signer, expiry, permissions);
-        emit AuthorizationsUpdated(msg.sender, signer, permissions, origin);
+        emit AuthorizationsUpdated(msg.sender, signer, expiry, permissions, origin);
         signer.transfer(msg.value);
     }
 }
