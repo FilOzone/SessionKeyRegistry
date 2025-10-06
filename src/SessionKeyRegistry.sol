@@ -14,7 +14,7 @@ contract SessionKeyRegistry {
         for (uint256 i = 0; i < permissions.length; i++) {
             permissionExpiry[permissions[i]] = expiry;
         }
-        emit AuthorizationsUpdated(msg.sender, signer, 0, permissions, origin);
+        emit AuthorizationsUpdated(msg.sender, signer, expiry, permissions, origin);
     }
 
     /**
