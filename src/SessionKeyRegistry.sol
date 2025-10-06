@@ -9,11 +9,12 @@ contract SessionKeyRegistry {
         address indexed identity, address signer, uint256 expiry, bytes32[] permissions, string origin
     );
 
-    function _setAuthorizations(address signer, uint256 expiry, bytes32[] calldata permissions) internal {
+    function _setAuthorizations(address signer, uint256 expiry, bytes32[] calldata permissions, string calldata origin) internal {
         mapping(bytes32 => uint256) storage permissionExpiry = authorizationExpiry[msg.sender][signer];
         for (uint256 i = 0; i < permissions.length; i++) {
             permissionExpiry[permissions[i]] = expiry;
         }
+        emit AuthorizationsUpdated(msg.sender, signer, 0, permissions, origin);
     }
 
     /**
@@ -23,8 +24,7 @@ contract SessionKeyRegistry {
      * @param origin indicates what app prompted this revocation
      */
     function revoke(address signer, bytes32[] calldata permissions, string calldata origin) external {
-        _setAuthorizations(signer, 0, permissions);
-        emit AuthorizationsUpdated(msg.sender, signer, 0, permissions, origin);
+        _setAuthorizations(signer, 0, permissions, origin);
     }
 
     /**
@@ -35,8 +35,7 @@ contract SessionKeyRegistry {
      * @param origin indicates what app prompted this authorization
      */
     function login(address signer, uint256 expiry, bytes32[] calldata permissions, string calldata origin) external {
-        _setAuthorizations(signer, expiry, permissions);
-        emit AuthorizationsUpdated(msg.sender, signer, expiry, permissions, origin);
+        _setAuthorizations(signer, expiry, permissions, origin);
     }
 
     /**
@@ -52,8 +51,7 @@ contract SessionKeyRegistry {
         bytes32[] calldata permissions,
         string calldata origin
     ) external payable {
-        _setAuthorizations(signer, expiry, permissions);
-        emit AuthorizationsUpdated(msg.sender, signer, expiry, permissions, origin);
+        _setAuthorizations(signer, expiry, permissions, origin);
         signer.transfer(msg.value);
     }
 }
