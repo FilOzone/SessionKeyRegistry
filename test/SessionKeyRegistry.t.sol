@@ -12,6 +12,7 @@ contract SessionKeyRegistryTest is Test {
     bytes32 private constant PERMISSION1 = 0x1111111111111111111111111111111111111111111111111111111111111111;
     bytes32 private constant PERMISSION2 = 0x2222222222222222222222222222222222222222222222222222222222222222;
     bytes32 private constant PERMISSION3 = 0x3333333333333333333333333333333333333333333333333333333333333333;
+    string constant ORIGIN = "SessionKeyRegistryTest";
 
     uint256 private constant DAY_SECONDS = 1 days;
 
@@ -27,14 +28,18 @@ contract SessionKeyRegistryTest is Test {
         assertEq(registry.authorizationExpiry(address(this), SIGNER_ONE, PERMISSION3), 0);
 
         uint256 expiry = block.timestamp + DAY_SECONDS;
-        registry.loginAndFund{value: 1 ether}(SIGNER_ONE, expiry, permissions);
+        vm.expectEmit(true, false, false, true, address(registry));
+        emit SessionKeyRegistry.AuthorizationsUpdated(address(this), SIGNER_ONE, expiry, permissions, ORIGIN);
+        registry.loginAndFund{value: 1 ether}(SIGNER_ONE, expiry, permissions, ORIGIN);
 
         assertEq(SIGNER_ONE.balance, 1 ether);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_ONE, PERMISSION1), expiry);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_ONE, PERMISSION2), expiry);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_ONE, PERMISSION3), expiry);
 
-        registry.revoke(SIGNER_ONE, permissions);
+        vm.expectEmit(true, false, false, true, address(registry));
+        emit SessionKeyRegistry.AuthorizationsUpdated(address(this), SIGNER_ONE, 0, permissions, ORIGIN);
+        registry.revoke(SIGNER_ONE, permissions, ORIGIN);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_ONE, PERMISSION1), 0);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_ONE, PERMISSION2), 0);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_ONE, PERMISSION3), 0);
@@ -51,13 +56,17 @@ contract SessionKeyRegistryTest is Test {
 
         uint256 expiry = block.timestamp + 4 * DAY_SECONDS;
 
-        registry.login(SIGNER_TWO, expiry, permissions);
+        vm.expectEmit(true, false, false, true, address(registry));
+        emit SessionKeyRegistry.AuthorizationsUpdated(address(this), SIGNER_TWO, expiry, permissions, ORIGIN);
+        registry.login(SIGNER_TWO, expiry, permissions, ORIGIN);
 
         assertEq(registry.authorizationExpiry(address(this), SIGNER_TWO, PERMISSION1), expiry);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_TWO, PERMISSION2), 0);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_TWO, PERMISSION3), expiry);
 
-        registry.revoke(SIGNER_TWO, permissions);
+        vm.expectEmit(true, false, false, true, address(registry));
+        emit SessionKeyRegistry.AuthorizationsUpdated(address(this), SIGNER_TWO, 0, permissions, ORIGIN);
+        registry.revoke(SIGNER_TWO, permissions, ORIGIN);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_TWO, PERMISSION1), 0);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_TWO, PERMISSION2), 0);
         assertEq(registry.authorizationExpiry(address(this), SIGNER_TWO, PERMISSION3), 0);
