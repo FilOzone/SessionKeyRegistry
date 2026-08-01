@@ -9,7 +9,9 @@ contract SessionKeyRegistry {
         address indexed identity, address signer, uint256 expiry, bytes32[] permissions, string origin
     );
 
-    function _setAuthorizations(address signer, uint256 expiry, bytes32[] calldata permissions, string calldata origin) internal {
+    function _setAuthorizations(address signer, uint256 expiry, bytes32[] calldata permissions, string calldata origin)
+        internal
+    {
         mapping(bytes32 => uint256) storage permissionExpiry = authorizationExpiry[msg.sender][signer];
         for (uint256 i = 0; i < permissions.length; i++) {
             permissionExpiry[permissions[i]] = expiry;
